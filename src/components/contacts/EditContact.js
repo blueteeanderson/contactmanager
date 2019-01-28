@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Consumer } from "../../context";
-import uuid from "uuid";
 import TextInputGroup from "../layout/TextInputGroup";
 import axios from "axios";
 
@@ -13,7 +12,17 @@ class EditContact extends Component {
   };
   async componentDidMount() {
     const { id } = this.props.match.params;
-    const res = await axios.get;
+    const res = await axios.get(
+      `https://jsonplaceholder.typicode.com/users/${id}`
+    );
+
+    const contact = res.data;
+
+    this.setState({
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone
+    });
   }
   onChange = e => this.setState({ [e.target.name]: e.target.value });
   onSubmit = async (dispatch, e) => {
@@ -34,6 +43,20 @@ class EditContact extends Component {
       this.setState({ errors: { phone: "Phone is required" } });
       return;
     }
+
+    const updContact = {
+      name,
+      email,
+      phone
+    };
+
+    const { id } = this.props.match.params;
+    const res = await axios.put(
+      `https://jsonplaceholder.typicode.com/users/${id}`,
+      updContact
+    );
+
+    dispatch({ type: "UPDATE_CONTACT", payload: res.data });
 
     this.setState({
       name: "",
